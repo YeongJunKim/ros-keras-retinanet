@@ -1,7 +1,7 @@
 #! /usr/bin/python3
 
 import cv2
-
+import PIL
 import rospy
 from sensor_msgs.msg import Image
 from cv_bridge import CvBridge, CvBridgeError
@@ -165,9 +165,15 @@ def main():
                 caption = "{} {:.3f}".format(labels_to_names[label], score)
                 draw_caption(draw, b, caption)
             
-            #print(draw)
+            # print(draw)
+            # print(draw.size)
+            # print(draw.shape)
+
+            draw = draw.astype(np.uint8)
             
-            msg = CvBridge().cv2_to_imgmsg(draw)
+            msg = CvBridge().cv2_to_imgmsg(draw, encoding="rgb8")
+
+            
             image_pub.publish(msg)
 
             # draw = cv2.cvtColor(draw, f
