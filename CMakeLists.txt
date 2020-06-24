@@ -163,6 +163,7 @@ include_directories(
 catkin_install_python(PROGRAMS
   #scripts/my_python_script
   src/keras_retinanet.py
+  src/CvBridge_test.py
   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
 
