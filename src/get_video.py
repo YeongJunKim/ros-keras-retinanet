@@ -16,7 +16,7 @@ def main():
     # Set up your subscriber and define its callback
     image_pub = rospy.Publisher("/usb_cam/image_raw", Image, queue_size=1)
     
-    cap = cv2.VideoCapture(5)
+    cap = cv2.VideoCapture(4)
     # cv2.namedWindow('video', cv2.WINDOW_NORMAL)
     
     while not rospy.is_shutdown():
@@ -25,7 +25,7 @@ def main():
         if ret:
             gray = cv2.cvtColor(fram, cv2.IMREAD_COLOR)
             #image = cv2.resize(gray, dsize=(640,480))
-            image = cv2.resize(gray, dsize=(480,360))
+            image = cv2.resize(gray, dsize=(320,240))
             # cv2.imshow('video', gray)
             # cv2.waitKey(0)
             msg = CvBridge().cv2_to_imgmsg(image, encoding="bgr8")
