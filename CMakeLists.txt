@@ -181,6 +181,7 @@ catkin_install_python(PROGRAMS
   src/CvBridge_test.py
   src/opencv_test.py
   src/keras_retinanet_drone.py
+  src/get_video.py
   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
 
