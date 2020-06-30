@@ -14,6 +14,17 @@ find_package(catkin REQUIRED COMPONENTS
   std_msgs
 )
 
+find_package(PythonLibs)
+
+find_package(Boost REQUIRED python3)
+find_package(OpenCV 3 REQUIRED
+  COMPONENTS
+    opencv_core
+    opencv_imgproc
+    opencv_imgcodecs
+  CONFIG
+)
+
 ## System dependencies are found with CMake's conventions
 # find_package(Boost REQUIRED COMPONENTS system)
 
@@ -108,6 +119,7 @@ catkin_package(
 #  LIBRARIES ros_keras_retinanet
 #  CATKIN_DEPENDS roscpp rospy sensor_msgs std_msgs
 #  DEPENDS system_lib
+  DEPENDS OpenCV
 )
 
 ###########
@@ -119,6 +131,9 @@ catkin_package(
 include_directories(
 # include
   ${catkin_INCLUDE_DIRS}
+  ${Boost_INCLUDE_DIRS}
+  ${OpenCV_INCLUDE_DIRS}
+  "/usr/include/python3.6m"
 )
 
 ## Declare a C++ library
@@ -164,6 +179,8 @@ catkin_install_python(PROGRAMS
   #scripts/my_python_script
   src/keras_retinanet.py
   src/CvBridge_test.py
+  src/opencv_test.py
+  src/keras_retinanet_drone.py
   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
 
