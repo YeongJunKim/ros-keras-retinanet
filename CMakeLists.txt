@@ -8,6 +8,8 @@ project(ros_keras_retinanet)
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
 ## is used, also find other catkin packages
 find_package(catkin REQUIRED COMPONENTS
+  message_generation
+  message_runtime
   roscpp
   rospy
   sensor_msgs
@@ -59,11 +61,11 @@ find_package(OpenCV 3 REQUIRED
 ##   * add every package in MSG_DEP_SET to generate_messages(DEPENDENCIES ...)
 
 ## Generate messages in the 'msg' folder
-# add_message_files(
-#   FILES
-#   Message1.msg
-#   Message2.msg
-# )
+add_message_files(
+DIRECTORY msg  
+FILES
+  label_frame.msg
+)
 
 ## Generate services in the 'srv' folder
 # add_service_files(
@@ -80,10 +82,11 @@ find_package(OpenCV 3 REQUIRED
 # )
 
 ## Generate added messages and services with any dependencies listed here
-# generate_messages(
-#   DEPENDENCIES
-#   sensor_msgs#   std_msgs
-# )
+generate_messages(
+  DEPENDENCIES
+  std_msgs
+  #sensor_msgs
+)
 
 ################################################
 ## Declare ROS dynamic reconfigure parameters ##
@@ -116,8 +119,8 @@ find_package(OpenCV 3 REQUIRED
 ## DEPENDS: system dependencies of this project that dependent projects also need
 catkin_package(
 #  INCLUDE_DIRS include
-#  LIBRARIES ros_keras_retinanet
-#  CATKIN_DEPENDS roscpp rospy sensor_msgs std_msgs
+  LIBRARIES ${PROJECT_NAME}
+  CATKIN_DEPENDS roscpp rospy sensor_msgs std_msgs message_runtime
 #  DEPENDS system_lib
   DEPENDS OpenCV
 )

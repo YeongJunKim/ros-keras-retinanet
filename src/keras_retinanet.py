@@ -30,6 +30,7 @@ import time
 # set tf backend to allow memory to grow, instead of claiming everything
 import tensorflow as tf
 
+from ros_keras_retinanet.msg import label_frame
 
 # use this to change which GPU to use
 gpu = 0
@@ -128,6 +129,8 @@ def main():
     # Set up your subscriber and define its callback
     rospy.Subscriber(image_topic, Image, image_callback, queue_size=1)
     image_pub = rospy.Publisher("/output/image_raw", Image)
+    label_pub = rospy.Publisher("/detection/label", label_frame, queue_size=1)
+
     
     #model = models.load_model('/home/colson/catkin_ws/src/ros-keras-retinanet/model/resnet50_coco_best_v2.1.0.h5', backbone_name='resnet50')
     #model = models.load_model('/home/colson/catkin_ws/src/ros-keras-retinanet/model/resnet_50_pascal_12_inference.h5', backbone_name='resnet50')
@@ -168,6 +171,13 @@ def main():
                 color = label_color(label)
                 
                 b = box.astype(int)
+                box_data = label_frame()
+                box_data.x1 = b[0]
+                box_data.y1 = b[1]
+                box_data.x2 = b[2]
+                box_data.y2 = b[3]
+
+                label_pub.publish(box_data)
                 draw_box(draw, b, color=color)
 
                 caption = "{} {:.3f}".format(labels_to_names[label], score)
