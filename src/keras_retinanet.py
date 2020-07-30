@@ -121,6 +121,7 @@ def image_callback(msg):
     # is_running =0
 
 
+
 def main():
     print('image_lisnter')
     rospy.init_node('image_listener')
@@ -131,12 +132,12 @@ def main():
     image_pub = rospy.Publisher("/output/image_raw", Image)
     label_pub = rospy.Publisher("/detection/label", label_frame, queue_size=1)
 
-    
-    #model = models.load_model('/home/colson/catkin_ws/src/ros-keras-retinanet/model/resnet50_coco_best_v2.1.0.h5', backbone_name='resnet50')
+    label_sequence = 0
+    model = models.load_model('/home/colson/catkin_ws/src/ros_keras_retinanet/model/resnet50_coco_best_v2.1.0.h5', backbone_name='resnet50')
     #model = models.load_model('/home/colson/catkin_ws/src/ros-keras-retinanet/model/resnet_50_pascal_12_inference.h5', backbone_name='resnet50')
     #model = models.load_model('/home/colson/catkin_ws/src/ros-keras-retinanet/model/mobilenet128_1.0_pascal_06_inference.h5', backbone_name='mobilenet128')
     #model = models.load_model('/home/colson/catkin_ws/src/ros-keras-retinanet/model/vgg19_pascal_14_inference.h5', backbone_name='vgg19')
-    model = models.load_model('/home/colson/catkin_ws/src/ros-keras-retinanet/model/resnet50_pascal_14_inference.h5', backbone_name='resnet50')
+    #model = models.load_model('/home/colson/catkin_ws/src/ros_keras_retinanet/model/resnet50_pascal_14_inference.h5', backbone_name='resnet50')
     labels_to_names = {0: 'drone', 1: 'bicycle', 2: 'car', 3: 'motorcycle', 4: 'airplane', 5: 'bus', 6: 'train', 7: 'truck', 8: 'boat', 9: 'traffic light', 10: 'fire hydrant', 11: 'stop sign', 12: 'parking meter', 13: 'bench', 14: 'bird', 15: 'cat', 16: 'dog', 17: 'horse', 18: 'sheep', 19: 'cow', 20: 'elephant', 21: 'bear', 22: 'zebra', 23: 'giraffe', 24: 'backpack', 25: 'umbrella', 26: 'handbag', 27: 'tie', 28: 'suitcase', 29: 'frisbee', 30: 'skis', 31: 'snowboard', 32: 'sports ball', 33: 'kite', 34: 'baseball bat', 35: 'baseball glove', 36: 'skateboard', 37: 'surfboard', 38: 'tennis racket', 39: 'bottle', 40: 'wine glass', 41: 'cup', 42: 'fork', 43: 'knife', 44: 'spoon', 45: 'bowl', 46: 'banana', 47: 'apple', 48: 'sandwich', 49: 'orange', 50: 'broccoli', 51: 'carrot', 52: 'hot dog', 53: 'pizza', 54: 'donut', 55: 'cake', 56: 'chair', 57: 'couch', 58: 'potted plant', 59: 'bed', 60: 'dining table', 61: 'toilet', 62: 'tv', 63: 'laptop', 64: 'mouse', 65: 'remote', 66: 'keyboard', 67: 'cell phone', 68: 'microwave', 69: 'oven', 70: 'toaster', 71: 'sink', 72: 'refrigerator', 73: 'book', 74: 'clock', 75: 'vase', 76: 'scissors', 77: 'teddy bear', 78: 'hair drier', 79: 'toothbrush'}
 
     # Spin until ctrl + c
@@ -162,6 +163,9 @@ def main():
             # correct for image scale
             boxes /= scale
 
+            box_data = label_frame()
+            label_sequence = label_sequence + 1
+            box_data.seq = label_sequence
             # visualize detections
             for box, score, label in zip(boxes[0], scores[0], labels[0]):
                 # scores are sorted so we can break
@@ -170,14 +174,21 @@ def main():
                     
                 color = label_color(label)
                 
-                b = box.astype(int)
-                box_data = label_frame()
-                box_data.x1 = b[0]
-                box_data.y1 = b[1]
-                box_data.x2 = b[2]
-                box_data.y2 = b[3]
-
-                label_pub.publish(box_data)
+                b = box.astype(float)
+                x1 = b[0]
+                y1 = b[1]
+                x2 = b[2]
+                y2 = b[3]
+                d = [0]*4
+                d[0] = x1
+                d[1] = y1
+                d[2] = x2
+                d[3] = y2 
+                box_data.data.extend(d)
+                box_data.label_num = box_data.label_num + 1
+                
+                print(box_data.data)
+                
                 draw_box(draw, b, color=color)
 
                 caption = "{} {:.3f}".format(labels_to_names[label], score)
@@ -186,6 +197,7 @@ def main():
             # print(draw)
             # print(draw.size)
             # print(draw.shape)
+            label_pub.publish(box_data)
 
             draw = draw.astype(np.uint8)
             
